@@ -165,19 +165,19 @@ function verifyEmail (req, res, next) {
                 User.deleteOne({ _id: userId })
                     .then(() => {
                     let message = "Link has expired. Please sign up again.";
-                    res.redirect(`/user/verified/error=true&message=${message}`);
+                    res.redirect(`v1/auth/verified/error=true&message=${message}`);
                     })
                     .catch((error) => {
                     let message =
                         "Clearing user with expired unique string failed";
-                    res.redirect(`/user/verified/error=true&message=${message}`);
+                    res.redirect(`v1/auth/verified/error=true&message=${message}`);
                     });
                 })
                 .catch((error) => {
                 console.log(error);
                 let message =
                     "An error occurred while clearing expired user verification record";
-                res.redirect(`/user/verified/error=true&message=${message}`);
+                res.redirect(`v1/auth/verified/error=true&message=${message}`);
                 });
             } else {
             // valid record exists so we validate the user string
@@ -202,7 +202,7 @@ function verifyEmail (req, res, next) {
                             let message =
                             "An error occurred while finalizing successful verification.";
                             res.redirect(
-                            `/user/verified/error=true&message=${message}`
+                            `v1/auth/verified/error=true&message=${message}`
                             );
                         });
                     })
@@ -211,33 +211,33 @@ function verifyEmail (req, res, next) {
                         let message =
                         "An error occurred while updating user record to show verified.";
                         res.redirect(
-                        `/user/verified/error=true&message=${message}`
+                        `v1/auth/verified/error=true&message=${message}`
                         );
                     });
                 } else {
                     // existing record but incorrect verification details passed.
                     let message =
                     "Invalid verification details passed. Check your inbox.";
-                    res.redirect(`/user/verified/error=true&message=${message}`);
+                    res.redirect(`v1/auth/verified/error=true&message=${message}`);
                 }
                 })
                 .catch((error) => {
                 let message = "An error occurred while comparing unique strings.";
-                res.redirect(`/user/verified/error=true&message=${message}`);
+                res.redirect(`v1/auth/verified/error=true&message=${message}`);
                 });
             }
         } else {
             // user verification record doesn't exist
             let message =
             "Account record doesn't exist or has been verified already. Please sign up or log in.";
-            res.redirect(`/user/verified/error=true&message=${message}`);
+            res.redirect(`v1/auth/verified/error=true&message=${message}`);
         }
         })
         .catch((error) => {
         console.log(error);
         let message =
             "An error occurred while checking for existing user verification record";
-        res.redirect(`/user/verified/error=true&message=${message}`);
+        res.redirect(`v1/auth/verified/error=true&message=${message}`);
         });
 }
 
@@ -247,35 +247,69 @@ function verified (req, res, next) {
 
 
 async function login (req, res, next) {
-    
     let { email, password } = req.body;
-    try {
-        User.findOne({ email: email })
-        .then(user =>{
-            bcrypt.compare(password,user.password, function(err, result){
-                if(err){
-                    return res.json({ error: err });
-                }
-                if(result){
-                    let token = jwt.sign(
-                            {role:user.role},'secretValue',{expiresIn:'2h'}
-                        )
-                    return res.json({
-                        message: 'Login Success',
-                        data: user,
-                        token
-                    })
-                }else{
-                    return res.json({
-                        message: 'User Not Found'
-                    });
-                }
-            })
-        })
+  email = email.trim();
+  password = password.trim();
 
-    }catch (err){
+  if (email == "" || password == "") {
+    res.json({
+      status: "FAILED",
+      message: "Empty credentials supplied",
+    });
+  } else {
+    // Check if user exist
+    User.find({ email })
+      .then((data) => {
+        if (data.length) {
+          // User exists
 
-    };
+          // check if user is verified
+
+          if (!data[0].verified) {
+            res.json({
+              status: "FAILED",
+              message: "Email hasn't been verified yet. Check your inbox.",
+            });
+          } else {
+            const hashedPassword = data[0].password;
+            bcrypt
+              .compare(password, hashedPassword)
+              .then((result) => {
+                if (result) {
+                  // Password match
+                  res.json({
+                    status: "SUCCESS",
+                    message: "Signin successful",
+                    data: data,
+                  });
+                } else {
+                  res.json({
+                    status: "FAILED",
+                    message: "Invalid password entered!",
+                  });
+                }
+              })
+              .catch((err) => {
+                res.json({
+                  status: "FAILED",
+                  message: "An error occurred while comparing passwords",
+                });
+              });
+          }
+        } else {
+          res.json({
+            status: "FAILED",
+            message: "Invalid credentials entered!",
+          });
+        }
+      })
+      .catch((err) => {
+        res.json({
+          status: "FAILED",
+          message: "An error occurred while checking for existing user",
+        });
+      });
+  }
 }
 
 
