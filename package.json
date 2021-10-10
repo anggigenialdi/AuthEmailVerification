@@ -1,0 +1,36 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "pattern untuk auth login dan register",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/anggigenialdi/patternAuth.git"
+  },
+  "author": "genialdi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anggigenialdi/patternAuth/issues"
+  },
+  "homepage": "https://github.com/anggigenialdi/patternAuth#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.12.2",
+    "jsonwebtoken": "^8.5.1",
+    "method-override": "^3.0.0",
+    "mongoose": "^6.0.9",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.6.5",
+    "path": "^0.12.7",
+    "uuid": "^8.3.2",
+    "validator": "^13.6.0"
+  }
+}
