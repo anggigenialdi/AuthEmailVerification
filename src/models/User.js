@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema(
         password:{
             type : String,
             required: [true, 'Password mohon diisi'],
-            minLength: [6, 'Minimal password 6 karakter']    
+            minLength: [8, 'Minimal password 8 karakter']    
         },
         verified: Boolean
     },
