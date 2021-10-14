@@ -264,13 +264,17 @@ async function login (req, res, next) {
                     bcrypt
                     .compare(password, hashedPassword)
                     .then((result) => {
-                        if (result) {
-                        // Password match
-                        res.json({
-                                status: "SUCCESS",
-                                message: "Signin successful",
-                            data: data,
-                        });
+                        if(result){
+                            const role = data[0].role
+                            let token = jwt.sign(
+                                    {role},'secretValue',{expiresIn:'2h'}
+                                )                       
+                            res.json({
+                                    status: "SUCCESS",
+                                    message: "Signin successful",
+                                    data: data,
+                                    token
+                            });
                         } else {
                         res.json({
                                 status: "FAILED",
